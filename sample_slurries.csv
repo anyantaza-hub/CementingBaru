@@ -1,0 +1,9 @@
+name,density_ppg,plastic_viscosity_cP,yield_point_lb100ft2,gel10s,thickening_time_min,BHCT_F,source
+Hybrid_High_YP,19.3,381,60.6,10.6,240,200,Elkatatny2019
+Hybrid_Medium,16.0,85,35,9,200,180,Sample
+Hybrid_LowDensity,14.2,25,10,8,220,140,Sample
+Hybrid_FoamLight,12.5,20,8,6,180,120,Lab
+Hybrid_Barite,16.0,120,84.3,9,200,190,Ahmed2020
+Hybrid_Thermal,17.2,95,40,8,260,230,Ramirez2021
+Hybrid_Expanding,15.8,60,25,12,210,160,Naeem2020
+Hybrid_MicroSilica,16.4,85,35,10,240,200,Literature2020
