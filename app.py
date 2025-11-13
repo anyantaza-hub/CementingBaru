@@ -80,7 +80,8 @@ with st.sidebar:
     apply_temp = st.checkbox("Apply temperature correction", True)
 
     st.markdown("---")
-    show = st.multiselect("Show panels", ["ECD","Pressure","Rheology","Schematic","Placement"],
+    show = st.multiselect("Show panels",
+                          ["ECD","Pressure","Rheology","Schematic","Placement"],
                           default=["ECD","Rheology","Schematic"])
 
 # Derived parameters
@@ -123,8 +124,8 @@ with col1:
         ax.axvline(fracture_grad, color="red", linestyle="--", label="Fracture")
         ax.axvline(pore_press, color="green", linestyle="--", label="Pore")
 
-        ax.fill_betweenx(z, pore_press, fracture_grad, where=pore_press < fracture_grad,
-                         color='#0b5', alpha=0.06)
+        if pore_press < fracture_grad:
+            ax.fill_betweenx(z, pore_press, fracture_grad, color='#0b5', alpha=0.06)
 
         ax.invert_yaxis()
         ax.set_xlabel("ECD (ppg)")
@@ -164,7 +165,7 @@ with col2:
         st.pyplot(fig3)
 
     # -----------------------
-    # WELL SCHEMATIC FIXED VERSION
+    # WELL SCHEMATIC — FIXED VERSION
     # -----------------------
     if "Schematic" in show:
         st.markdown("<div class='card'><h4>Well Schematic</h4></div>", unsafe_allow_html=True)
@@ -177,14 +178,15 @@ with col2:
         casing_color = '#1f8ea6'
         cement_color = '#ffb46b'
 
-        # Draw wellbore
+        # HOLE
         ax4.fill_betweenx([0, depth], 0.2, 2.8, color=hole_color)
+        # CASING
         ax4.fill_betweenx([0, depth], 1.0, 2.0, color=casing_color)
-        ax4.fill_betweenx([toc, depth], 0.2, 1.0, color=cem
-        ent_color)
+        # CEMENT
+        ax4.fill_betweenx([toc, depth], 0.2, 1.0, color=cement_color)
         ax4.fill_betweenx([toc, depth], 2.0, 2.8, color=cement_color)
 
-        # Depth ticks dynamic
+        # Depth ticks every ~10–12 intervals
         tick_int = max(250, depth // 12)
         ticks = list(range(0, depth + 1, tick_int))
 
@@ -192,17 +194,16 @@ with col2:
             ax4.hlines(t, 0.2, 0.3, color="#888", linewidth=0.8)
             ax4.text(0.32, t, f"{t} ft", color="#ccc", fontsize=8, va="center")
 
-        # TOC + TD labels
         ax4.axhline(toc, color='yellow', linestyle='--')
-        ax4.text(2.85, toc, f"TOC: {int(toc)} ft", color='yellow', fontsize=8, va='center')
+        ax4.text(2.85, toc, f"TOC: {int(toc)} ft", color='yellow', fontsize=9)
 
-        ax4.text(2.85, depth, f"TD: {int(depth)} ft", color="#ccc", fontsize=9, va='center')
+        ax4.text(2.85, depth, f"TD: {int(depth)} ft", color="#ccc", fontsize=9)
 
         ax4.axis('off')
         st.pyplot(fig4)
 
     # -----------------------
-    # PLACEMENT
+    # CEMENT PLACEMENT
     # -----------------------
     if "Placement" in show:
         st.markdown("<div class='card'><h4>Cement Placement Simulation</h4></div>", unsafe_allow_html=True)
