@@ -1,0 +1,11 @@
+<!--?xml version="1.0" encoding="UTF-8"?-->
+<svg width="260" height="80" viewBox="0 0 260 80" xmlns="http://www.w3.org/2000/svg">
+  <rect rx="12" width="260" height="80" fill="#071018"></rect>
+  <g transform="translate(18,12)">
+    <!-- Circular badge logo (Logo C style) -->
+    <circle cx="28" cy="28" r="20" fill="#2aa1bf"></circle>
+    <circle cx="28" cy="28" r="14" fill="#071018"></circle>
+    <path d="M28 16 L34 28 L28 40 L22 28 Z" fill="#2aa1bf"></path>
+    <text x="60" y="46" font-family="Inter, Arial" font-size="18" fill="#e6f0ff">DTC — Cementing</text>
+  </g>
+</svg>
