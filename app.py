@@ -95,7 +95,11 @@ with col_left:
     ax.set_facecolor('#0b1220')
     ax.plot(ecd, z, color='#2aa1bf', lw=2.5, label='ECD (total)')  # cyan-green
     ax.plot([fracture_grad]*2, [0, TD], color='#ff6b6b', ls='--', label='Fracture grad')
-    ax.plot([pore_press]*2, [0, TD], color='#66ffb3', ls='--', label='Pore pressure')
+    # Safe window shading (convert scalars to arrays)
+safe_low = np.full_like(z, pore_press)
+safe_high = np.full_like(z, fracture_grad)
+safe_mask = safe_high > safe_low
+ax.fill_betweenx(z, safe_low, safe_high, where=safe_mask, color='#0b5', alpha=0.06)
     ax.fill_betweenx(z, pore_press, fracture_grad, where=(fracture_grad>pore_press), color='#0b5', alpha=0.06)
     ax.invert_yaxis()
     ax.set_xlabel('ECD (ppg)', color='#cfefff')
