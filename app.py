@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import math, os
 
 # Page config
-st.set_page_config(page_title="Digital Twin Cementing — Hybrid Dark", layout="wide")
+st.set_page_config(page_title="Digital Twin Cementing by.alexandroood", layout="wide")
 
 # Inject hybrid dark CSS
 st.markdown(
@@ -227,4 +227,4 @@ with col2:
 
 
 # Footer
-st.markdown("<p class='muted small'>Prototype for educational use — hybrid dark UI</p>", unsafe_allow_html=True)
+st.markdown("<p class='muted small'>Protoype Digital Twin Cementing by.alexandroood</p>", unsafe_allow_html=True)
