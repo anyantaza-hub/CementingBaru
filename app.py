@@ -8,23 +8,7 @@ import math, os
 st.set_page_config(page_title="Digital Twin Cementing — Hybrid Dark", layout="wide")
 
 # CSS Hybrid Dark Premium
-st.markdown(
-    """
-    <style>
-    :root{--bg:#0f1720;--panel:#11151a;--card:#0f1724;--muted:#94a3b8;--accent:#0ea5a4;--accent2:#f97316;--text:#e6eef6}
-    html, body, [class*="css"]  { background: var(--bg); color:var(--text); }
-    .stApp { background: linear-gradient(180deg, #0b1220 0%, #071018 100%); }
-    .block-container{padding-top:1.2rem;padding-left:1.2rem;padding-right:1.2rem;}
-    .card { background: var(--card); padding: 0.65rem; border-radius:8px; box-shadow: 0 4px 18px rgba(0,0,0,0.4); }
-    .muted { color: var(--muted); font-size:0.9rem }
-    .small { font-size:0.85rem }
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-    </style>
-    """,
-    unsafe_allow_html=True
-)
+st.image("logo.png", width=120)
 
 # Utility functions
 def density_temp_correction(ppg, T, T_ref=150.0):
@@ -61,23 +45,13 @@ if not all(c in df.columns for c in req):
 
 # Sidebar
 with st.sidebar:
-    st.markdown("<div class='card'><h3>Digital Twin Cementing</h3><p class='muted'>Hybrid Dark UI</p></div>", unsafe_allow_html=True)
+# Sidebar (navigation + inputs)
+with st.sidebar:
+    st.image("logo.png", width=110)   # ← logo sidebar
     st.markdown("---")
-
+    st.subheader("Operation inputs")
     slurry = st.selectbox("Select slurry", df["name"].tolist())
-    row = df[df["name"] == slurry].iloc[0]
 
-    hole = st.number_input("Hole diameter (in)", 6.0, 20.0, 8.5)
-    casing = st.number_input("Casing OD (in)", 4.0, 16.0, 5.5)
-    depth = st.slider("Casing depth TD (ft)", 1000, 12000, 3000, 100)
-    toc = st.slider("Top of Cement (ft)", 0, depth - 50, int(depth * 0.5), 50)
-    rate = st.slider("Pump rate (bbl/min)", 0.5, 18.0, 4.0, 0.1)
-
-    fracture_grad = st.slider("Fracture gradient (ppg)", 12.0, 22.0, 17.0)
-    pore_press = st.slider("Pore pressure (ppg)", 9.0, 18.0, 13.5)
-
-    temp = st.number_input("BHCT (°F)", 50, 350, int(row["BHCT_F"]))
-    apply_temp = st.checkbox("Apply temperature correction", True)
 
     st.markdown("---")
     show = st.multiselect("Show panels",
