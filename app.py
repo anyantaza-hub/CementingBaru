@@ -140,21 +140,48 @@ with col2:
         ax3.grid(True, which="both", ls="--", alpha=0.2)
         st.pyplot(fig3)
 
-    if "Schematic" in show:
-        st.markdown("<div class='card'><h4>Well Schematic</h4></div>", unsafe_allow_html=True)
-        fig4, ax4 = plt.subplots(figsize=(3,8))
-        ax4.set_ylim(depth, 0)
+   if "Schematic" in show:
+    st.markdown("<div class='card'><h4>Well Schematic</h4></div>", unsafe_allow_html=True)
 
-        ax4.fill_betweenx([0, depth], 0.2, 2.8, color="#0a0f12")
-        ax4.fill_betweenx([0, depth], 1.0, 2.0, color="#1f8ea6")
-        ax4.fill_betweenx([toc, depth], 0.2, 1.0, color="#ffb46b")
-        ax4.fill_betweenx([toc, depth], 2.0, 2.8, color="#ffb46b")
+    fig4, ax4 = plt.subplots(figsize=(3.3, 8))
 
-        ax4.axhline(toc, color="#ffd580", ls="--")
-        ax4.text(2.9, toc, f"TOC {int(toc)} ft", color="white")
-        ax4.text(2.9, depth, f"TD {int(depth)} ft", color="white")
-        ax4.axis("off")
-        st.pyplot(fig4)
+    # RANGE SUMUR
+    ax4.set_ylim(depth, 0)     # Kedalaman mengikuti input
+    ax4.set_xlim(0, 3)         # Lebar tetap proporsional
+
+    # Warna desain
+    hole_color   = "#0a0f12"
+    casing_color = "#1f8ea6"
+    cement_color = "#ffb46b"
+
+    # =========================================
+    #   HOLE (diameter luar)
+    # =========================================
+    ax4.fill_betweenx([0, depth], 0.2, 2.8, color=hole_color)
+
+    # =========================================
+    #   CASING (diameter dalam sumur)
+    # =========================================
+    ax4.fill_betweenx([0, depth], 1.0, 2.0, color=casing_color)
+
+    # =========================================
+    #   CEMENT BEHIND CASING (mengikuti TOC)
+    # =========================================
+    ax4.fill_betweenx([toc, depth], 0.2, 1.0, color=cement_color, alpha=0.95)
+    ax4.fill_betweenx([toc, depth], 2.0, 2.8, color=cement_color, alpha=0.95)
+
+    # Garis TOC + label
+    ax4.axhline(toc, color="#ffd580", linestyle="--")
+    ax4.text(2.9, toc, f"TOC = {int(toc)} ft", color="white", va="center")
+
+    # Garis TD + label
+    ax4.text(2.9, depth, f"TD = {int(depth)} ft", color="white", va="center")
+
+    # Bersihkan grid/axis
+    ax4.axis("off")
+
+    st.pyplot(fig4)
+
 
     if "Placement" in show:
         st.markdown("<div class='card'><h4>Placement Simulation</h4></div>", unsafe_allow_html=True)
