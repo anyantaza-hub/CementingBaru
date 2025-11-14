@@ -2,8 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import math
-import os
+import math, os
 
 # Page config
 st.set_page_config(page_title="Digital Twin Cementing — Hybrid Dark", layout="wide")
@@ -46,6 +45,7 @@ def annulus_area_ft2(hole_in, casing_in):
 def annulus_hydraulic_diameter_ft(hole_in, casing_in):
     return max(0.0001, (hole_in - casing_in) / 12.0)
 
+
 # Load CSV safely
 CSV = "sample_slurries.csv"
 if not os.path.exists(CSV):
@@ -54,7 +54,8 @@ if not os.path.exists(CSV):
 
 df = pd.read_csv(CSV)
 
-# Sidebar inputs
+
+# Sidebar
 with st.sidebar:
     st.image("logo.png", width=110)
     st.markdown("---")
@@ -70,18 +71,18 @@ with st.sidebar:
     rate = st.slider("Pump rate (bbl/min)", 0.5, 18.0, 4.0, 0.1)
     fracture_grad = st.slider("Fracture gradient (ppg)", 12.0, 22.0, 17.0, 0.1)
     pore_press = st.slider("Pore pressure (ppg)", 9.0, 18.0, 13.5, 0.1)
-    temp = st.number_input("BHCT (°F)", 50, 350, int(row.get("BHCT_F", 150)))
+    temp = st.number_input("BHCT (°F)", 50, 350, int(row["BHCT_F"]))
     apply_temp = st.checkbox("Apply thermal correction", True)
 
     st.markdown("---")
-    st.subheader("Display options")
     show = st.multiselect(
         "Show panels",
         ["ECD", "Pressure", "Rheology", "Schematic", "Placement"],
         default=["ECD", "Rheology", "Schematic"]
     )
 
-# Derived values
+
+# Derived properties
 density0 = row["density_ppg"]
 pv0 = row["plastic_viscosity_cP"]
 yp = row["yield_point_lb100ft2"]
@@ -94,47 +95,47 @@ ann_dh = annulus_hydraulic_diameter_ft(hole, casing)
 vol_bbl = ann_area * 7.48052 * (depth - toc) / 42.0
 pump_time = vol_bbl / rate if rate > 0 else 0.0
 
-# Header logo
-st.image("logo.png", width=150)
 
-# Layout columns
+# Main logo
+st.image("logo.png", width=140)
+
+
 col1, col2 = st.columns([1.4, 1])
 
-# ---------------------------
+
+# ============================
 # COLUMN 1
-# ---------------------------
+# ============================
+
 with col1:
 
-    # ECD PROFILE
+    # ECD profile
     if "ECD" in show:
         depth_arr = np.linspace(1, depth, 400)
-
         geom = max(0.1, 1 + (0.45 - ann_dh))
         friction = (pv/10.0)*(rate/4.0) + (yp/20.0)
-
-        friction_psi = friction * depth_arr/1000.0 * 50.0 * geom
+        friction_psi = friction * depth_arr / 1000.0 * 50.0 * geom
         hydro_psi = 0.052 * density * depth_arr
         total_psi = hydro_psi + friction_psi
         ecd = total_psi / (0.052 * depth_arr)
 
         st.markdown("<div class='card'><h4>ECD Profile</h4></div>", unsafe_allow_html=True)
         fig, ax = plt.subplots(figsize=(6, 5))
-        ax.plot(ecd, depth_arr, linewidth=2, color='#66b2ff')
+        ax.plot(ecd, depth_arr, linewidth=2, color="#66b2ff")
 
         if fracture_grad > pore_press:
-            ax.fill_betweenx(depth_arr, pore_press, fracture_grad, color="#0b5", alpha=0.1)
+            ax.fill_betweenx(depth_arr, pore_press, fracture_grad, color="#00aa66", alpha=0.08)
 
         ax.axvline(fracture_grad, color="#ff6b6b", linestyle="--")
         ax.axvline(pore_press, color="#66ffb3", linestyle="--")
-
         ax.invert_yaxis()
         ax.grid(ls="--", alpha=0.2)
         st.pyplot(fig)
 
-    # PRESSURE PROFILE
+    # Pressure components
     if "Pressure" in show:
         st.markdown("<div class='card'><h4>Pressure Components</h4></div>", unsafe_allow_html=True)
-        fig2, ax2 = plt.subplots(figsize=(6, 3.4))
+        fig2, ax2 = plt.subplots(figsize=(6, 3.5))
         ax2.plot(hydro_psi, depth_arr, label="Hydrostatic")
         ax2.plot(friction_psi, depth_arr, label="Friction")
         ax2.plot(total_psi, depth_arr, label="Total", linewidth=2)
@@ -143,87 +144,87 @@ with col1:
         ax2.legend()
         st.pyplot(fig2)
 
-# ---------------------------
+
+
+# ============================
 # COLUMN 2
-# ---------------------------
+# ============================
+
 with col2:
 
-    # RHEOLOGY
+    # Rheology
     if "Rheology" in show:
         st.markdown("<div class='card'><h4>Rheology Curve</h4></div>", unsafe_allow_html=True)
         sr = np.logspace(0, 3, 120)
         yp_Pa = yp * 0.4788
-        shear = yp_Pa + (pv/1000.0) * sr
+        shear = yp_Pa + (pv / 1000.0) * sr
         fig3, ax3 = plt.subplots(figsize=(4, 3))
         ax3.loglog(sr, shear)
         ax3.grid(True, which="both", ls="--", alpha=0.2)
         st.pyplot(fig3)
 
-    # WELL SCHEMATIC (FIXED)
-        if "Schematic" in show:
+    # Well Schematic
+    if "Schematic" in show:
         st.markdown("<div class='card'><h4>Well Schematic</h4></div>", unsafe_allow_html=True)
 
         fig4, ax4 = plt.subplots(figsize=(3.8, 10))
-
-        # Axis limits
         ax4.set_ylim(depth, 0)
         ax4.set_xlim(0, 3)
 
-        # Colors
         hole_color = "#0a0f12"
         casing_color = "#1f8ea6"
         cement_color = "#ffb46b"
 
-        # Draw geometry
-        ax4.fill_betweenx([0, depth], 0.2, 2.8, color=hole_color)          # Hole
-        ax4.fill_betweenx([0, depth], 1.0, 2.0, color=casing_color)        # Casing
-        ax4.fill_betweenx([toc, depth], 0.2, 1.0, color=cement_color)      # Cement LHS
-        ax4.fill_betweenx([toc, depth], 2.0, 2.8, color=cement_color)      # Cement RHS
+        ax4.fill_betweenx([0, depth], 0.2, 2.8, color=hole_color)
+        ax4.fill_betweenx([0, depth], 1.0, 2.0, color=casing_color)
+        ax4.fill_betweenx([toc, depth], 0.2, 1.0, color=cement_color)
+        ax4.fill_betweenx([toc, depth], 2.0, 2.8, color=cement_color)
 
-        # TOC & TD lines
-        ax4.axhline(toc, color="#ffd580", linestyle="--", linewidth=1)
-        ax4.axhline(depth, color="#ffd580", linestyle="--", linewidth=1)
+        ax4.axhline(toc, color="#ffd580", ls="--")
+        ax4.axhline(depth, color="#ffd580", ls="--")
 
-        # Depth ticks every 500 ft
-        tick_step = 500
-        ticks = np.arange(0, depth + tick_step, tick_step)
+        ticks = np.arange(0, depth + 500, 500)
         ax4.set_yticks(ticks)
         ax4.set_yticklabels([f"{int(t)} ft" for t in ticks], color="white")
 
-        # Labels inside the axis
-        ax4.text(2.1, toc, f"TOC = {int(toc)} ft", color="white", fontsize=10, va="center")
-        ax4.text(2.1, depth, f"TD = {int(depth)} ft", color="white", fontsize=10, va="center")
+        ax4.text(2.1, toc, f"TOC {int(toc)} ft", color="white", va="center")
+        ax4.text(2.1, depth, f"TD {int(depth)} ft", color="white", va="center")
 
-        # Style cleanup
         ax4.tick_params(axis='y', colors='white')
         ax4.tick_params(axis='x', colors='white')
         ax4.set_xticks([])
-        ax4.grid(axis='y', linestyle='--', alpha=0.2)
 
+        ax4.grid(axis='y', ls="--", alpha=0.15)
+
+        ax4.axis("off")
         st.pyplot(fig4)
 
-    # PLACEMENT ANIMATION
+    # Cement Placement
     if "Placement" in show:
         st.markdown("<div class='card'><h4>Placement Simulation</h4></div>", unsafe_allow_html=True)
 
-        t = st.slider("Time", 0.0, pump_time * 1.2, pump_time, 0.1)
-        frac = min(1, t / pump_time)
+        t = st.slider("Time (min)", 0.0, pump_time * 1.2, pump_time, 0.1)
+        frac = min(1.0, t / pump_time)
         front = depth - frac * (depth - toc)
 
-        fig5, ax5 = plt.subplots(figsize=(3.3, 8))
+        fig5, ax5 = plt.subplots(figsize=(3.8, 10))
         ax5.set_ylim(depth, 0)
         ax5.set_xlim(0, 3)
 
-        ax5.fill_betweenx([0, depth], 0.2, 2.8, color="#0a0f12")
-        ax5.fill_betweenx([0, depth], 1.0, 2.0, color="#1f8ea6")
-        ax5.fill_betweenx([front, depth], 0.2, 1.0, color="#ffb46b")
-        ax5.fill_betweenx([front, depth], 2.0, 2.8, color="#ffb46b")
+        ax5.fill_betweenx([0, depth], 0.2, 2.8, color=hole_color)
+        ax5.fill_betweenx([0, depth], 1.0, 2.0, color=casing_color)
+        ax5.fill_betweenx([front, depth], 0.2, 1.0, color=cement_color)
+        ax5.fill_betweenx([front, depth], 2.0, 2.8, color=cement_color)
 
         ax5.axhline(front, color="#ffd580", ls="--")
-        ax5.text(2.9, front, f"Front {int(front)} ft", color="white")
-        ax5.axis("off")
+        ax5.text(2.1, front, f"Front {int(front)} ft", color="white")
 
+        ax5.set_xticks([])
+        ax5.set_yticks([])
+
+        ax5.axis("off")
         st.pyplot(fig5)
+
 
 # Footer
 st.markdown("<p class='muted small'>Prototype for educational use — hybrid dark UI</p>", unsafe_allow_html=True)
