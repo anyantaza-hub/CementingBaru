@@ -161,28 +161,47 @@ with col2:
 
     # WELL SCHEMATIC (FIXED)
     if "Schematic" in show:
-        st.markdown("<div class='card'><h4>Well Schematic</h4></div>", unsafe_allow_html=True)
+    st.markdown("<div class='card'><h4>Well Schematic</h4></div>", unsafe_allow_html=True)
 
-        fig4, ax4 = plt.subplots(figsize=(3.3, 8))
-        ax4.set_ylim(depth, 0)
-        ax4.set_xlim(0, 3)
+    fig4, ax4 = plt.subplots(figsize=(3.8, 10))
 
-        hole_color = "#0a0f12"
-        casing_color = "#1f8ea6"
-        cement_color = "#ffb46b"
+    # Axis limits
+    ax4.set_ylim(depth, 0)
+    ax4.set_xlim(0, 3)
 
-        ax4.fill_betweenx([0, depth], 0.2, 2.8, color=hole_color)
-        ax4.fill_betweenx([0, depth], 1.0, 2.0, color=casing_color)
-        ax4.fill_betweenx([toc, depth], 0.2, 1.0, color=cement_color)
-        ax4.fill_betweenx([toc, depth], 2.0, 2.8, color=cement_color)
+    # Colors
+    hole_color = "#0a0f12"
+    casing_color = "#1f8ea6"
+    cement_color = "#ffb46b"
 
-        ax4.axhline(toc, color="#ffd580", linestyle="--")
-        ax4.text(2.9, toc, f"TOC = {int(toc)} ft", color="white", va="center")
+    # Draw geometry
+    ax4.fill_betweenx([0, depth], 0.2, 2.8, color=hole_color)          # Hole
+    ax4.fill_betweenx([0, depth], 1.0, 2.0, color=casing_color)        # Casing
+    ax4.fill_betweenx([toc, depth], 0.2, 1.0, color=cement_color)      # Cement LHS
+    ax4.fill_betweenx([toc, depth], 2.0, 2.8, color=cement_color)      # Cement RHS
 
-        ax4.text(2.9, depth, f"TD = {int(depth)} ft", color="white", va="center")
+    # TOC & TD lines
+    ax4.axhline(toc, color="#ffd580", linestyle="--", linewidth=1)
+    ax4.axhline(depth, color="#ffd580", linestyle="--", linewidth=1)
 
-        ax4.axis("off")
-        st.pyplot(fig4)
+    # Depth ticks every 500 ft
+    tick_step = 500
+    ticks = np.arange(0, depth + tick_step, tick_step)
+    ax4.set_yticks(ticks)
+    ax4.set_yticklabels([f"{int(t)} ft" for t in ticks], color="white")
+
+    # Add annotation inside axis (safe)
+    ax4.text(2.1, toc, f"TOC = {int(toc)} ft", color="white", fontsize=10, va="center")
+    ax4.text(2.1, depth, f"TD = {int(depth)} ft", color="white", fontsize=10, va="center")
+
+    # Style cleanup
+    ax4.tick_params(axis='y', colors='white')
+    ax4.tick_params(axis='x', colors='white')
+    ax4.set_xticks([])
+    ax4.grid(axis='y', linestyle='--', alpha=0.2)
+
+    st.pyplot(fig4)
+
 
     # PLACEMENT ANIMATION
     if "Placement" in show:
